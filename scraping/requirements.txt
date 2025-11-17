@@ -1,0 +1,5 @@
+scrapy>=2.13.3
+supabase>=2.0.0
+python-dotenv>=1.0.0
+selenium>=4.38.0
+webdriver-manager>=4.0.2
