@@ -1,8 +1,9 @@
 <template>
-  <div class="border border-gray-200 rounded-md">
+  <div class="border border-gray-200 rounded-2xl">
     <button
       @click="$emit('toggle')"
-      class="w-full px-4 py-3 flex items-center justify-between text-left hover:bg-gray-50 transition-colors"
+      class="w-full px-4 py-3 flex rounded-t-lg bg-purple-500 items-center justify-between text-left hover:bg-purple-400 transition-colors"
+      :class="[open ? 'rounded-b-none' : 'rounded-lg']"
     >
       <span class="font-medium text-gray-900 text-sm">{{ title }}</span>
       <svg
@@ -14,7 +15,7 @@
         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
       </svg>
     </button>
-    <div v-if="open" class="px-4 py-4 border-t border-gray-200">
+    <div v-if="open" class="px-4 py-4 border-t border-gray-200 bg-purple-50">
       <slot />
     </div>
   </div>

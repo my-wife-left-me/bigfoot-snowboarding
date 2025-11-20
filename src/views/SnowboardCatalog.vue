@@ -19,7 +19,7 @@
       <div class="flex flex-col lg:flex-row gap-6">
         <!-- Filter Panel -->
         <aside class="lg:w-80 flex-shrink-0">
-          <div class="bg-white rounded-lg shadow-sm p-6 sticky top-4 max-h-[calc(100vh-2rem)] overflow-y-auto">
+          <div class="bg-purple-100 rounded-lg shadow-sm p-6 sticky top-4 max-h-[calc(100vh-2rem)] overflow-y-auto">
             <div class="flex items-center justify-between mb-4">
               <h2 class="text-xl font-semibold text-gray-900">Filters</h2>
               <button
@@ -40,43 +40,32 @@
               >
                   <div class="space-y-4">
                     <div>
-                      <label class="block text-sm font-medium text-gray-700 mb-2">Brand</label>
-                      <select
+                      <MultiSelectGrid
                         v-model="filters.brandId"
-                        class="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-transparent text-sm"
+                        :options="brands"
+                        option-value="id"
+                        option-label="name"
+                        label="Brand"
                         @change="applyFilters"
-                      >
-                        <option :value="null">All Brands</option>
-                        <option v-for="brand in brands" :key="brand.id" :value="brand.id">
-                          {{ brand.name }}
-                        </option>
-                      </select>
+                      />
                     </div>
                     <div>
-                      <label class="block text-sm font-medium text-gray-700 mb-2">Year</label>
-                      <select
+                      <MultiSelectGrid
                         v-model="filters.year"
-                        class="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-transparent text-sm"
+                        :options="availableYears"
+                        option-value="year"
+                        option-label="year"
+                        label="Year"
                         @change="applyFilters"
-                      >
-                        <option :value="null">All Years</option>
-                        <option v-for="year in availableYears" :key="year" :value="year">
-                          {{ year }}
-                        </option>
-                      </select>
+                      />
                     </div>
                     <div>
-                      <label class="block text-sm font-medium text-gray-700 mb-2">Gender</label>
-                      <select
+                      <MultiSelectGrid
                         v-model="filters.gender"
-                        class="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-transparent text-sm"
+                        :options="['Mens', 'Womens', 'Unisex', 'Kids']"
+                        label="Gender"
                         @change="applyFilters"
-                      >
-                        <option :value="null">All</option>
-                        <option value="Men">Men</option>
-                        <option value="Women">Women</option>
-                        <option value="Unisex">Unisex</option>
-                      </select>
+                      />
                     </div>
                     <RangeInput
                       label="Price Range ($)"
@@ -97,43 +86,34 @@
               >
                   <div class="space-y-4">
                     <div>
-                      <label class="block text-sm font-medium text-gray-700 mb-2">Profile</label>
-                      <select
+                      <MultiSelectGrid
                         v-model="filters.profileId"
-                        class="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-transparent text-sm"
+                        :options="profiles"
+                        option-label="standard_name"
+                        option-value="id"
+                        label="Profile"
                         @change="applyFilters"
-                      >
-                        <option :value="null">All Profiles</option>
-                        <option v-for="profile in profiles" :key="profile.id" :value="profile.id">
-                          {{ profile.standard_name }}
-                        </option>
-                      </select>
+                      />
                     </div>
                     <div>
-                      <label class="block text-sm font-medium text-gray-700 mb-2">Shape</label>
-                      <select
+                      <MultiSelectGrid
                         v-model="filters.shapeId"
-                        class="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-transparent text-sm"
+                        :options="shapes"
+                        option-value="id"
+                        option-label="standard_name"
+                        label="Shape"
                         @change="applyFilters"
-                      >
-                        <option :value="null">All Shapes</option>
-                        <option v-for="shape in shapes" :key="shape.id" :value="shape.id">
-                          {{ shape.standard_name }}
-                        </option>
-                      </select>
+                      />
                     </div>
                     <div>
-                      <label class="block text-sm font-medium text-gray-700 mb-2">Response Type</label>
-                      <select
+                      <MultiSelectGrid
                         v-model="filters.responseTypeId"
-                        class="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-transparent text-sm"
+                        :options="responseTypes"
+                        option-label="standard_name"
+                        option-value="id"
+                        label="Response Type"
                         @change="applyFilters"
-                      >
-                        <option :value="null">All Response Types</option>
-                        <option v-for="responseType in responseTypes" :key="responseType.id" :value="responseType.id">
-                          {{ responseType.standard_name }}
-                        </option>
-                      </select>
+                      />
                     </div>
                     <div>
                       <label class="block text-sm font-medium text-gray-700 mb-2">
@@ -171,42 +151,24 @@
               >
                   <div class="space-y-4">
                     <div>
-                      <label class="block text-sm font-medium text-gray-700 mb-2">Ability Level</label>
-                      <div class="space-y-2 max-h-32 overflow-y-auto">
-                        <label
-                          v-for="ability in abilityLevels"
-                          :key="ability.id"
-                          class="flex items-center space-x-2 cursor-pointer"
-                        >
-                          <input
-                            type="checkbox"
-                            :value="ability.id"
-                            v-model="filters.abilityLevelIds"
-                            class="rounded border-gray-300 text-blue-600 focus:ring-blue-500"
-                            @change="applyFilters"
-                          />
-                          <span class="text-sm text-gray-700">{{ ability.name }}</span>
-                        </label>
-                      </div>
+                      <MultiSelectGrid
+                        v-model="filters.abilityLevelIds"
+                        :options="abilityLevels"
+                        option-value="id"
+                        option-label="name"
+                        label="Ability Level"
+                        @change="applyFilters"
+                      />
                     </div>
                     <div>
-                      <label class="block text-sm font-medium text-gray-700 mb-2">Terrain Type</label>
-                      <div class="space-y-2 max-h-32 overflow-y-auto">
-                        <label
-                          v-for="terrain in terrainTypes"
-                          :key="terrain.id"
-                          class="flex items-center space-x-2 cursor-pointer"
-                        >
-                          <input
-                            type="checkbox"
-                            :value="terrain.id"
-                            v-model="filters.terrainTypeIds"
-                            class="rounded border-gray-300 text-blue-600 focus:ring-blue-500"
-                            @change="applyFilters"
-                          />
-                          <span class="text-sm text-gray-700">{{ terrain.name }}</span>
-                        </label>
-                      </div>
+                      <MultiSelectGrid
+                        v-model="filters.terrainTypeIds"
+                        :options="terrainTypes"
+                        option-label="name"
+                        option-value="id"
+                        label="Terrain Type"
+                        @change="applyFilters"
+                      />
                     </div>
                   </div>
               </FilterAccordion>
@@ -418,6 +380,8 @@ import RangeInput from '../components/RangeInput.vue'
 import SearchBar from '../components/SearchBar.vue'
 import SnowboardCard from '../components/SnowboardCard.vue'
 import Pagination from '../components/Pagination.vue'
+import CustomSelect from '../components/CustomSelect.vue'
+import MultiSelectGrid from '../components/MultiSelectGrid.vue'
 
 // Debounce helper
 let searchTimeout = null
@@ -455,16 +419,16 @@ const toggleAccordion = (key) => {
 // Filters - comprehensive filter object
 const filters = ref({
   // Basic
-  brandId: null,
-  year: null,
-  gender: null,
+  brandId: [],
+  year: [],
+  gender: [],
   priceMin: null,
   priceMax: null,
   
   // Profile & Shape
-  profileId: null,
-  shapeId: null,
-  responseTypeId: null,
+  profileId: [],
+  shapeId: [],
+  responseTypeId: [],
   flexMin: 1,
   flexMax: 10,
   
@@ -514,9 +478,10 @@ const endIndex = computed(() =>
 )
 
 const availableYears = computed(() => {
-  const currentYear = new Date().getFullYear()
+  const currentYear = new Date().getFullYear() + 1
+  const PREVIOUS_CATALOG_YEARS = 1;
   const years = []
-  for (let i = currentYear; i >= currentYear - 10; i--) {
+  for (let i = currentYear; i >= currentYear - PREVIOUS_CATALOG_YEARS; i--) {
     years.push(i)
   }
   return years
@@ -790,24 +755,24 @@ const fetchSnowboards = async () => {
     }
 
     // Apply basic filters
-    if (filters.value.brandId) {
-      query = query.eq('brand_id', filters.value.brandId)
+    if (filters.value.brandId.length > 0) {
+      query = query.in('brand_id', filters.value.brandId)
     }
 
-    if (filters.value.profileId) {
-      query = query.eq('profile_id', filters.value.profileId)
+    if (filters.value.profileId.length > 0) {
+      query = query.in('profile_id', filters.value.profileId)
     }
 
-    if (filters.value.shapeId) {
-      query = query.eq('shape_id', filters.value.shapeId)
+    if (filters.value.shapeId.length > 0) {
+      query = query.in('shape_id', filters.value.shapeId)
     }
 
-    if (filters.value.responseTypeId) {
-      query = query.eq('response_type_id', filters.value.responseTypeId)
+    if (filters.value.responseTypeId.length > 0) {
+      query = query.in('response_type_id', filters.value.responseTypeId)
     }
 
-    if (filters.value.year) {
-      query = query.eq('model_year', filters.value.year)
+    if (filters.value.year.length > 0) {
+      query = query.in('model_year', filters.value.year)
     }
 
     // Flex rating filter
@@ -821,8 +786,8 @@ const fetchSnowboards = async () => {
       }
     }
 
-    if (filters.value.gender) {
-      query = query.eq('gender', filters.value.gender)
+    if (filters.value.gender.length > 0) {
+      query = query.in('gender', filters.value.gender)
     }
 
     // Price filter
