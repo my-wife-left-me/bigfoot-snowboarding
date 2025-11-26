@@ -18,7 +18,7 @@
 
       <div class="flex flex-col lg:flex-row gap-6">
         <!-- Filter Panel -->
-        <aside class="lg:w-80 flex-shrink-0">
+        <aside class="lg:w-80 shrink-0">
           <div class="bg-purple-100 rounded-lg shadow-sm p-6 sticky top-4 max-h-[calc(100vh-2rem)] overflow-y-auto">
             <div class="flex items-center justify-between mb-4">
               <h2 class="text-xl font-semibold text-gray-900">Filters</h2>
@@ -27,6 +27,16 @@
                 class="text-sm text-blue-600 hover:text-blue-800"
               >
                 Clear All
+              </button>
+            </div>
+            
+            <!-- Apply Filters Button -->
+            <div class="mb-4">
+              <button
+                @click="applyFilters"
+                class="w-full bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition-colors font-medium"
+              >
+                Apply Filters
               </button>
             </div>
 
@@ -41,39 +51,36 @@
                   <div class="space-y-4">
                     <div>
                       <MultiSelectGrid
-                        v-model="filters.brandId"
+                        v-model="pendingFilters.brandId"
                         :options="brands"
                         option-value="id"
                         option-label="name"
                         label="Brand"
-                        @change="applyFilters"
                       />
                     </div>
                     <div>
                       <MultiSelectGrid
-                        v-model="filters.year"
+                        v-model="pendingFilters.year"
                         :options="availableYears"
                         option-value="year"
                         option-label="year"
                         label="Year"
-                        @change="applyFilters"
                       />
                     </div>
                     <div>
                       <MultiSelectGrid
-                        v-model="filters.gender"
+                        v-model="pendingFilters.gender"
                         :options="['Mens', 'Womens', 'Unisex', 'Kids']"
                         label="Gender"
-                        @change="applyFilters"
                       />
                     </div>
                     <RangeInput
                       label="Price Range ($)"
-                      :min-value="filters.priceMin"
-                      :max-value="filters.priceMax"
+                      :min-value="pendingFilters.priceMin"
+                      :max-value="pendingFilters.priceMax"
                       step="1"
-                      @update:min-value="filters.priceMin = $event; applyFilters()"
-                      @update:max-value="filters.priceMax = $event; applyFilters()"
+                      @update:min-value="pendingFilters.priceMin = $event"
+                      @update:max-value="pendingFilters.priceMax = $event"
                     />
                   </div>
               </FilterAccordion>
@@ -87,56 +94,51 @@
                   <div class="space-y-4">
                     <div>
                       <MultiSelectGrid
-                        v-model="filters.profileId"
+                        v-model="pendingFilters.profileId"
                         :options="profiles"
                         option-label="standard_name"
                         option-value="id"
                         label="Profile"
-                        @change="applyFilters"
                       />
                     </div>
                     <div>
                       <MultiSelectGrid
-                        v-model="filters.shapeId"
+                        v-model="pendingFilters.shapeId"
                         :options="shapes"
                         option-value="id"
                         option-label="standard_name"
                         label="Shape"
-                        @change="applyFilters"
                       />
                     </div>
                     <div>
                       <MultiSelectGrid
-                        v-model="filters.responseTypeId"
+                        v-model="pendingFilters.responseTypeId"
                         :options="responseTypes"
                         option-label="standard_name"
                         option-value="id"
                         label="Response Type"
-                        @change="applyFilters"
                       />
                     </div>
                     <div>
                       <label class="block text-sm font-medium text-gray-700 mb-2">
-                        Flex Rating: {{ filters.flexMin || 1 }} - {{ filters.flexMax || 10 }}
+                        Flex Rating: {{ pendingFilters.flexMin || 1 }} - {{ pendingFilters.flexMax || 10 }}
                       </label>
                       <div class="space-y-2">
                         <input
-                          v-model.number="filters.flexMin"
+                          v-model.number="pendingFilters.flexMin"
                           type="range"
                           min="1"
                           max="10"
                           step="0.5"
                           class="w-full"
-                          @input="applyFilters"
                         />
                         <input
-                          v-model.number="filters.flexMax"
+                          v-model.number="pendingFilters.flexMax"
                           type="range"
                           min="1"
                           max="10"
                           step="0.5"
                           class="w-full"
-                          @input="applyFilters"
                         />
                       </div>
                     </div>
@@ -152,22 +154,20 @@
                   <div class="space-y-4">
                     <div>
                       <MultiSelectGrid
-                        v-model="filters.abilityLevelIds"
+                        v-model="pendingFilters.abilityLevelIds"
                         :options="abilityLevels"
                         option-value="id"
                         option-label="name"
                         label="Ability Level"
-                        @change="applyFilters"
                       />
                     </div>
                     <div>
                       <MultiSelectGrid
-                        v-model="filters.terrainTypeIds"
+                        v-model="pendingFilters.terrainTypeIds"
                         :options="terrainTypes"
                         option-label="name"
                         option-value="id"
                         label="Terrain Type"
-                        @change="applyFilters"
                       />
                     </div>
                   </div>
@@ -182,59 +182,58 @@
                   <div class="space-y-4">
                     <RangeInput
                       label="Size (cm)"
-                      :min-value="filters.sizeMin"
-                      :max-value="filters.sizeMax"
+                      :min-value="pendingFilters.sizeMin"
+                      :max-value="pendingFilters.sizeMax"
                       step="0.5"
-                      @update:min-value="filters.sizeMin = $event; applyFilters()"
-                      @update:max-value="filters.sizeMax = $event; applyFilters()"
+                      @update:min-value="pendingFilters.sizeMin = $event"
+                      @update:max-value="pendingFilters.sizeMax = $event"
                     />
                     <RangeInput
                       label="Waist Width (mm)"
-                      :min-value="filters.waistWidthMin"
-                      :max-value="filters.waistWidthMax"
+                      :min-value="pendingFilters.waistWidthMin"
+                      :max-value="pendingFilters.waistWidthMax"
                       step="0.1"
-                      @update:min-value="filters.waistWidthMin = $event; applyFilters()"
-                      @update:max-value="filters.waistWidthMax = $event; applyFilters()"
+                      @update:min-value="pendingFilters.waistWidthMin = $event"
+                      @update:max-value="pendingFilters.waistWidthMax = $event"
                     />
                     <RangeInput
                       label="Tip Width (mm)"
-                      :min-value="filters.tipWidthMin"
-                      :max-value="filters.tipWidthMax"
+                      :min-value="pendingFilters.tipWidthMin"
+                      :max-value="pendingFilters.tipWidthMax"
                       step="0.1"
-                      @update:min-value="filters.tipWidthMin = $event; applyFilters()"
-                      @update:max-value="filters.tipWidthMax = $event; applyFilters()"
+                      @update:min-value="pendingFilters.tipWidthMin = $event"
+                      @update:max-value="pendingFilters.tipWidthMax = $event"
                     />
                     <RangeInput
                       label="Tail Width (mm)"
-                      :min-value="filters.tailWidthMin"
-                      :max-value="filters.tailWidthMax"
+                      :min-value="pendingFilters.tailWidthMin"
+                      :max-value="pendingFilters.tailWidthMax"
                       step="0.1"
-                      @update:min-value="filters.tailWidthMin = $event; applyFilters()"
-                      @update:max-value="filters.tailWidthMax = $event; applyFilters()"
+                      @update:min-value="pendingFilters.tailWidthMin = $event"
+                      @update:max-value="pendingFilters.tailWidthMax = $event"
                     />
                     <RangeInput
                       label="Effective Edge (mm)"
-                      :min-value="filters.effectiveEdgeMin"
-                      :max-value="filters.effectiveEdgeMax"
+                      :min-value="pendingFilters.effectiveEdgeMin"
+                      :max-value="pendingFilters.effectiveEdgeMax"
                       step="0.1"
-                      @update:min-value="filters.effectiveEdgeMin = $event; applyFilters()"
-                      @update:max-value="filters.effectiveEdgeMax = $event; applyFilters()"
+                      @update:min-value="pendingFilters.effectiveEdgeMin = $event"
+                      @update:max-value="pendingFilters.effectiveEdgeMax = $event"
                     />
                     <RangeInput
                       label="Running Length (mm)"
-                      :min-value="filters.runningLengthMin"
-                      :max-value="filters.runningLengthMax"
+                      :min-value="pendingFilters.runningLengthMin"
+                      :max-value="pendingFilters.runningLengthMax"
                       step="0.1"
-                      @update:min-value="filters.runningLengthMin = $event; applyFilters()"
-                      @update:max-value="filters.runningLengthMax = $event; applyFilters()"
+                      @update:min-value="pendingFilters.runningLengthMin = $event"
+                      @update:max-value="pendingFilters.runningLengthMax = $event"
                     />
                     <div>
                       <label class="flex items-center space-x-2 cursor-pointer">
                         <input
                           type="checkbox"
-                          v-model="filters.wide"
+                          v-model="pendingFilters.wide"
                           class="rounded border-gray-300 text-blue-600 focus:ring-blue-500"
-                          @change="applyFilters"
                         />
                         <span class="text-sm font-medium text-gray-700">Wide Only</span>
                       </label>
@@ -251,19 +250,19 @@
                   <div class="space-y-4">
                     <RangeInput
                       label="Sidecut Radius (m)"
-                      :min-value="filters.sidecutRadiusMin"
-                      :max-value="filters.sidecutRadiusMax"
+                      :min-value="pendingFilters.sidecutRadiusMin"
+                      :max-value="pendingFilters.sidecutRadiusMax"
                       step="0.01"
-                      @update:min-value="filters.sidecutRadiusMin = $event; applyFilters()"
-                      @update:max-value="filters.sidecutRadiusMax = $event; applyFilters()"
+                      @update:min-value="pendingFilters.sidecutRadiusMin = $event"
+                      @update:max-value="pendingFilters.sidecutRadiusMax = $event"
                     />
                     <RangeInput
                       label="Sidecut Depth (mm)"
-                      :min-value="filters.sidecutDepthMin"
-                      :max-value="filters.sidecutDepthMax"
+                      :min-value="pendingFilters.sidecutDepthMin"
+                      :max-value="pendingFilters.sidecutDepthMax"
                       step="0.1"
-                      @update:min-value="filters.sidecutDepthMin = $event; applyFilters()"
-                      @update:max-value="filters.sidecutDepthMax = $event; applyFilters()"
+                      @update:min-value="pendingFilters.sidecutDepthMin = $event"
+                      @update:max-value="pendingFilters.sidecutDepthMax = $event"
                     />
                   </div>
               </FilterAccordion>
@@ -277,27 +276,27 @@
                   <div class="space-y-4">
                     <RangeInput
                       label="Min Stance (in)"
-                      :min-value="filters.minStanceMin"
-                      :max-value="filters.minStanceMax"
+                      :min-value="pendingFilters.minStanceMin"
+                      :max-value="pendingFilters.minStanceMax"
                       step="0.1"
-                      @update:min-value="filters.minStanceMin = $event; applyFilters()"
-                      @update:max-value="filters.minStanceMax = $event; applyFilters()"
+                      @update:min-value="pendingFilters.minStanceMin = $event"
+                      @update:max-value="pendingFilters.minStanceMax = $event"
                     />
                     <RangeInput
                       label="Max Stance (in)"
-                      :min-value="filters.maxStanceMin"
-                      :max-value="filters.maxStanceMax"
+                      :min-value="pendingFilters.maxStanceMin"
+                      :max-value="pendingFilters.maxStanceMax"
                       step="0.1"
-                      @update:min-value="filters.maxStanceMin = $event; applyFilters()"
-                      @update:max-value="filters.maxStanceMax = $event; applyFilters()"
+                      @update:min-value="pendingFilters.maxStanceMin = $event"
+                      @update:max-value="pendingFilters.maxStanceMax = $event"
                     />
                     <RangeInput
                       label="Setback (in)"
-                      :min-value="filters.setbackMin"
-                      :max-value="filters.setbackMax"
+                      :min-value="pendingFilters.setbackMin"
+                      :max-value="pendingFilters.setbackMax"
                       step="0.1"
-                      @update:min-value="filters.setbackMin = $event; applyFilters()"
-                      @update:max-value="filters.setbackMax = $event; applyFilters()"
+                      @update:min-value="pendingFilters.setbackMin = $event"
+                      @update:max-value="pendingFilters.setbackMax = $event"
                     />
                   </div>
               </FilterAccordion>
@@ -311,11 +310,11 @@
                 <div class="space-y-4">
                   <RangeInput
                     label="Weight Range (lbs)"
-                    :min-value="filters.riderWeightMin"
-                    :max-value="filters.riderWeightMax"
+                    :min-value="pendingFilters.riderWeightMin"
+                    :max-value="pendingFilters.riderWeightMax"
                     step="0.1"
-                    @update:min-value="filters.riderWeightMin = $event; applyFilters()"
-                    @update:max-value="filters.riderWeightMax = $event; applyFilters()"
+                    @update:min-value="pendingFilters.riderWeightMin = $event"
+                    @update:max-value="pendingFilters.riderWeightMax = $event"
                   />
                 </div>
               </FilterAccordion>
@@ -416,8 +415,8 @@ const toggleAccordion = (key) => {
   openAccordions.value[key] = !openAccordions.value[key]
 }
 
-// Filters - comprehensive filter object
-const filters = ref({
+// Helper function to create default filter state
+const createDefaultFilters = () => ({
   // Basic
   brandId: [],
   year: [],
@@ -470,6 +469,12 @@ const filters = ref({
   riderWeightMax: null
 })
 
+// Active filters (applied)
+const filters = ref(createDefaultFilters())
+
+// Pending filters (not yet applied)
+const pendingFilters = ref(createDefaultFilters())
+
 // Computed
 const totalPages = computed(() => Math.ceil(totalCount.value / itemsPerPage))
 const startIndex = computed(() => (currentPage.value - 1) * itemsPerPage)
@@ -499,50 +504,16 @@ const handleSearch = () => {
 }
 
 const applyFilters = () => {
+  // Copy pending filters to active filters
+  filters.value = JSON.parse(JSON.stringify(pendingFilters.value))
   currentPage.value = 1
   fetchSnowboards()
 }
 
 const clearFilters = () => {
-  filters.value = {
-    brandId: null,
-    year: null,
-    gender: null,
-    priceMin: null,
-    priceMax: null,
-    profileId: null,
-    shapeId: null,
-    responseTypeId: null,
-    flexMin: 1,
-    flexMax: 10,
-    abilityLevelIds: [],
-    terrainTypeIds: [],
-    sizeMin: null,
-    sizeMax: null,
-    waistWidthMin: null,
-    waistWidthMax: null,
-    tipWidthMin: null,
-    tipWidthMax: null,
-    tailWidthMin: null,
-    tailWidthMax: null,
-    effectiveEdgeMin: null,
-    effectiveEdgeMax: null,
-    runningLengthMin: null,
-    runningLengthMax: null,
-    wide: false,
-    sidecutRadiusMin: null,
-    sidecutRadiusMax: null,
-    sidecutDepthMin: null,
-    sidecutDepthMax: null,
-    minStanceMin: null,
-    minStanceMax: null,
-    maxStanceMin: null,
-    maxStanceMax: null,
-    setbackMin: null,
-    setbackMax: null,
-    riderWeightMin: null,
-    riderWeightMax: null
-  }
+  const defaultFilters = createDefaultFilters()
+  filters.value = JSON.parse(JSON.stringify(defaultFilters))
+  pendingFilters.value = JSON.parse(JSON.stringify(defaultFilters))
   searchQuery.value = ''
   currentPage.value = 1
   fetchSnowboards()
@@ -557,36 +528,36 @@ const goToPage = (page) => {
 
 const fetchFilterOptions = async () => {
   try {
-    // Fetch all filter options in parallel
-    const [
-      { data: brandsData, error: brandsError },
-      { data: profilesData, error: profilesError },
-      { data: shapesData, error: shapesError },
-      { data: responseTypesData, error: responseTypesError },
-      { data: abilityLevelsData, error: abilityLevelsError },
-      { data: terrainTypesData, error: terrainTypesError }
-    ] = await Promise.all([
-      supabase.from('brand').select('id, name').order('name'),
-      supabase.from('profile').select('id, standard_name').order('standard_name'),
-      supabase.from('shape').select('id, standard_name').order('standard_name'),
-      supabase.from('response_type').select('id, standard_name').order('standard_name'),
-      supabase.from('ability_level').select('id, name').order('sort_order'),
-      supabase.from('terrain_type').select('id, name').order('name')
-    ])
+    // Fetch all filter options from catalog_filters view
+    const { data: filtersData, error: filtersError } = await supabase
+      .from('catalog_filters')
+      .select('*')
+      .order('sort_order', { ascending: true, nullsFirst: false })
+      .order('value', { ascending: true })
 
-    if (brandsError) throw brandsError
-    if (profilesError) throw profilesError
-    if (shapesError) throw shapesError
-    if (responseTypesError) throw responseTypesError
-    if (abilityLevelsError) throw abilityLevelsError
-    if (terrainTypesError) throw terrainTypesError
+    if (filtersError) throw filtersError
 
-    brands.value = brandsData || []
-    profiles.value = profilesData || []
-    shapes.value = shapesData || []
-    responseTypes.value = responseTypesData || []
-    abilityLevels.value = abilityLevelsData || []
-    terrainTypes.value = terrainTypesData || []
+    // Group filter options by type
+    const grouped = (filtersData || []).reduce((acc, item) => {
+      if (!acc[item.filter_type]) {
+        acc[item.filter_type] = []
+      }
+      acc[item.filter_type].push({
+        id: item.id,
+        name: item.value,
+        standard_name: item.value, // For compatibility
+        sort_order: item.sort_order
+      })
+      return acc
+    }, {})
+
+    // Map to component state
+    brands.value = grouped.brand || []
+    profiles.value = grouped.profile || []
+    shapes.value = grouped.shape || []
+    responseTypes.value = grouped.response_type || []
+    abilityLevels.value = grouped.ability_level || []
+    terrainTypes.value = grouped.terrain_type || []
   } catch (err) {
     console.error('Error fetching filter options:', err)
   }
@@ -597,7 +568,7 @@ const fetchSnowboards = async () => {
   error.value = null
 
   try {
-    // First, get board IDs that match board_size filters (if any)
+    // First, get board IDs that match board_size filters (if any) using board_sizes_catalog view
     let boardModelIds = null
     
     const hasSizeFilters = 
@@ -617,7 +588,7 @@ const fetchSnowboards = async () => {
 
     if (hasSizeFilters) {
       let sizeQuery = supabase
-        .from('board_size')
+        .from('board_sizes_catalog')
         .select('board_model_id')
 
       if (filters.value.sizeMin !== null) {
@@ -711,94 +682,7 @@ const fetchSnowboards = async () => {
       }
     }
 
-    // Now query board_model with all filters
-    let query = supabase
-      .from('board_model')
-      .select(
-        `
-        id,
-        model_name,
-        model_year,
-        flex_rating,
-        gender,
-        msrp,
-        image_url,
-        brand:brand_id (
-          id,
-          name
-        ),
-        profile:profile_id (
-          id,
-          standard_name
-        ),
-        shape:shape_id (
-          id,
-          standard_name
-        ),
-        response_type:response_type_id (
-          id,
-          standard_name
-        )
-      `,
-        { count: 'exact' }
-      )
-
-    // Apply board_size filter if we have matching IDs
-    if (boardModelIds !== null) {
-      query = query.in('id', boardModelIds)
-    }
-
-    // Apply search
-    if (searchQuery.value.trim()) {
-      const searchTerm = `%${searchQuery.value.trim()}%`
-      query = query.ilike('model_name', searchTerm)
-    }
-
-    // Apply basic filters
-    if (filters.value.brandId.length > 0) {
-      query = query.in('brand_id', filters.value.brandId)
-    }
-
-    if (filters.value.profileId.length > 0) {
-      query = query.in('profile_id', filters.value.profileId)
-    }
-
-    if (filters.value.shapeId.length > 0) {
-      query = query.in('shape_id', filters.value.shapeId)
-    }
-
-    if (filters.value.responseTypeId.length > 0) {
-      query = query.in('response_type_id', filters.value.responseTypeId)
-    }
-
-    if (filters.value.year.length > 0) {
-      query = query.in('model_year', filters.value.year)
-    }
-
-    // Flex rating filter
-    const isDefaultFlexRange = filters.value.flexMin === 1 && filters.value.flexMax === 10
-    if (!isDefaultFlexRange) {
-      if (filters.value.flexMin !== null) {
-        query = query.gte('flex_rating', filters.value.flexMin)
-      }
-      if (filters.value.flexMax !== null) {
-        query = query.lte('flex_rating', filters.value.flexMax)
-      }
-    }
-
-    if (filters.value.gender.length > 0) {
-      query = query.in('gender', filters.value.gender)
-    }
-
-    // Price filter
-    if (filters.value.priceMin !== null) {
-      query = query.gte('msrp', filters.value.priceMin)
-    }
-    if (filters.value.priceMax !== null) {
-      query = query.lte('msrp', filters.value.priceMax)
-    }
-
-    // Ability level filter (junction table)
+    // Ability level filter (junction table) - query separately and intersect
     if (filters.value.abilityLevelIds.length > 0) {
       const { data: abilityData, error: abilityError } = await supabase
         .from('board_model_ability_level')
@@ -824,13 +708,12 @@ const fetchSnowboards = async () => {
           loading.value = false
           return
         }
-        query = query.in('id', boardModelIds)
       } else {
-        query = query.in('id', abilityBoardIds)
+        boardModelIds = abilityBoardIds
       }
     }
 
-    // Terrain type filter (junction table)
+    // Terrain type filter (junction table) - query separately and intersect
     if (filters.value.terrainTypeIds.length > 0) {
       const { data: terrainData, error: terrainError } = await supabase
         .from('board_model_terrain_type')
@@ -856,24 +739,134 @@ const fetchSnowboards = async () => {
           loading.value = false
           return
         }
-        query = query.in('id', boardModelIds)
       } else {
-        query = query.in('id', terrainBoardIds)
+        boardModelIds = terrainBoardIds
       }
     }
 
-    // Apply pagination
+    // Query board_catalog view with all filters
+    let query = supabase
+      .from('board_catalog')
+      .select('*', { count: 'exact' })
+
+    // Apply boardModelIds filter if we have any (from size, ability, or terrain filters)
+    if (boardModelIds !== null) {
+      query = query.in('id', boardModelIds)
+    }
+
+    // Apply search
+    if (searchQuery.value.trim()) {
+      const searchTerm = `%${searchQuery.value.trim()}%`
+      query = query.ilike('model_name', searchTerm)
+    }
+
+    // Apply basic filters - need to get brand IDs from brand names
+    if (filters.value.brandId.length > 0) {
+      // Get brand names for the selected brand IDs
+      const selectedBrands = brands.value.filter(b => filters.value.brandId.includes(b.id))
+      const brandNames = selectedBrands.map(b => b.name)
+      if (brandNames.length > 0) {
+        query = query.in('brand_name', brandNames)
+      }
+    }
+
+    // Profile filter - board_catalog has 'profile' field (standard_name)
+    if (filters.value.profileId.length > 0) {
+      const selectedProfiles = profiles.value.filter(p => filters.value.profileId.includes(p.id))
+      const profileNames = selectedProfiles.map(p => p.standard_name)
+      if (profileNames.length > 0) {
+        query = query.in('profile', profileNames)
+      }
+    }
+
+    // Shape filter
+    if (filters.value.shapeId.length > 0) {
+      const selectedShapes = shapes.value.filter(s => filters.value.shapeId.includes(s.id))
+      const shapeNames = selectedShapes.map(s => s.standard_name)
+      if (shapeNames.length > 0) {
+        query = query.in('shape', shapeNames)
+      }
+    }
+
+    // Response type filter
+    if (filters.value.responseTypeId.length > 0) {
+      const selectedResponseTypes = responseTypes.value.filter(r => filters.value.responseTypeId.includes(r.id))
+      const responseTypeNames = selectedResponseTypes.map(r => r.standard_name)
+      if (responseTypeNames.length > 0) {
+        query = query.in('response_type', responseTypeNames)
+      }
+    }
+
+    // Year filter
+    if (filters.value.year.length > 0) {
+      query = query.in('model_year', filters.value.year)
+    }
+
+    // Flex rating filter
+    const isDefaultFlexRange = filters.value.flexMin === 1 && filters.value.flexMax === 10
+    if (!isDefaultFlexRange) {
+      if (filters.value.flexMin !== null) {
+        query = query.gte('flex_rating', filters.value.flexMin)
+      }
+      if (filters.value.flexMax !== null) {
+        query = query.lte('flex_rating', filters.value.flexMax)
+      }
+    }
+
+    // Gender filter
+    if (filters.value.gender.length > 0) {
+      query = query.in('gender', filters.value.gender)
+    }
+
+    // Price filter
+    if (filters.value.priceMin !== null) {
+      query = query.gte('msrp', filters.value.priceMin)
+    }
+    if (filters.value.priceMax !== null) {
+      query = query.lte('msrp', filters.value.priceMax)
+    }
+
+    // Apply pagination - all filtering is now server-side
     const from = startIndex.value
     const to = startIndex.value + itemsPerPage - 1
 
-    query = query.range(from, to).order('model_name', { ascending: true })
-
     const { data, error: queryError, count } = await query
+      .range(from, to)
+      .order('model_name', { ascending: true })
 
     if (queryError) throw queryError
 
-    snowboards.value = data || []
+    const allData = data || []
     totalCount.value = count || 0
+
+    // Transform data to match SnowboardCard component expectations
+    const transformedData = allData.map(board => ({
+      id: board.id,
+      model_name: board.model_name,
+      model_year: board.model_year,
+      flex_rating: board.flex_rating,
+      gender: board.gender,
+      msrp: board.msrp,
+      image_url: board.image_url,
+      brand: {
+        id: null, // Not available in view, but not needed by component
+        name: board.brand_name
+      },
+      profile: {
+        id: null,
+        standard_name: board.profile
+      },
+      shape: {
+        id: null,
+        standard_name: board.shape
+      },
+      response_type: {
+        id: null,
+        standard_name: board.response_type
+      }
+    }))
+
+    snowboards.value = transformedData
   } catch (err) {
     console.error('Error fetching snowboards:', err)
     error.value = 'Failed to load snowboards. Please try again later.'
